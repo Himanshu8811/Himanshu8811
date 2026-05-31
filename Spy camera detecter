@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberShield - Cam Sec & Detector</title>
+    <style>
+        /* CSS For Dark Modern Cyber Theme */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #111827;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.1);
+            border: 1px solid #1f2937;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #00f2fe;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .camera-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #030712;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px dashed #374151;
+            margin-bottom: 20px;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror view */
+        }
+
+        /* Spy Cam Detector Filter Effect */
+        .spy-filter {
+            filter: matrix(-1, 0, 0, 1, 0, 0) hue-rotate(120deg) brightness(1.2) contrast(1.5);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(239, 68, 68, 0.8);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            border: none;
+            color: #000;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+        }
+
+        button.secondary {
+            background: #1f2937;
+            color: #fff;
+            border: 1px solid #374151;
+        }
+
+        button.secondary:hover {
+            background: #374151;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>CamSecure Tester</h1>
+        <p>Apne camera ki security test karein aur Spy-Cam detection filter active karein.</p>
+
+        <div class="camera-box">
+            <div class="status-badge" id="statusBadge">LIVE STREAMING</div>
+            <video id="webcam" autoplay playsinline></video>
+        </div>
+
+        <div class="btn-group">
+            <button id="startBtn" onclick="startCamera()">Start Camera</button>
+            <button id="filterBtn" class="secondary" onclick="toggleFilter()">Spy-Cam Detector</button>
+            <button id="stopBtn" class="secondary" onclick="stopCamera()">Stop</button>
+        </div>
+    </div>
+
+    <script>
+        // Note: HTML/CSS ke sath thoda JavaScript zaroori hai camera access karne ke liye.
+        const video = document.getElementById('webcam');
+        const statusBadge = document.getElementById('statusBadge');
+        let stream = null;
+
+        async function startCamera() {
+            try {
+                // User se camera ki permission maang raha hai
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = stream;
+                statusBadge.style.display = 'block';
+            } catch (err) {
+                alert("Camera permission denied ya error: " + err.message);
+            }
+        }
+
+        function toggleFilter() {
+            // Camera par hidden IR lights pakadne ke liye green high-contrast filter lagana
+            video.classList.toggle('spy-filter');
+            const filterBtn = document.getElementById('filterBtn');
+            if(video.classList.contains('spy-filter')) {
+                filterBtn.innerText = "Normal Mode";
+                filterBtn.style.background = "#22c55e";
+                filterBtn.style.color = "#fff";
+            } else {
+                filterBtn.innerText = "Spy-Cam Detector";
+                filterBtn.style.background = "#1f2937";
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                let tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+                statusBadge.style.display = 'none';
+                video.classList.remove('spy-filter');
+                document.getElementById('filterBtn').innerText = "Spy-Cam Detector";
+                document.getElementById('filterBtn').style.background = "#1f2937";
+            }
+        }
+    </script>
+</body>
+</html>
